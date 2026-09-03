@@ -1,0 +1,22 @@
+import { Circle, CircleMarker, MapContainer, Popup, ScaleControl, TileLayer, Tooltip, LayersControl } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+
+const zones = [
+  { id: 'A-01', name: 'Panel A-01', position: [23.754, 85.862], risk: 10.5, level: 'Low', color: '#1a9850', methane: '0.38%', co: '13.2 ppm', oxygen: '20.85%', workers: 9, reason: 'Routine safety observation' },
+  { id: 'A-02', name: 'Panel A-02', position: [23.752, 85.868], risk: 23.9, level: 'Low', color: '#1a9850', methane: '0.34%', co: '8.8 ppm', oxygen: '20.67%', workers: 14, reason: 'Inspection overdue by 1 day' },
+  { id: 'B-11', name: 'Panel B-11', position: [23.750, 85.871], risk: 24.6, level: 'Low', color: '#1a9850', methane: '0.33%', co: '11.1 ppm', oxygen: '20.63%', workers: 20, reason: 'Safety observation in last 48 hours' },
+  { id: 'B-12', name: 'Panel B-12', position: [23.748, 85.873], risk: 56.8, level: 'Moderate', color: '#fdae61', methane: '0.60%', co: '19.9 ppm', oxygen: '20.35%', workers: 34, reason: 'Equipment failure and elevated gas readings' },
+  { id: 'H-01', name: 'Haul Road H-01', position: [23.753, 85.865], risk: 18.1, level: 'Low', color: '#1a9850', methane: '0.29%', co: '7.2 ppm', oxygen: '20.77%', workers: 12, reason: 'Dust suppression check complete' },
+  { id: 'H-02', name: 'Haul Road H-02', position: [23.756, 85.861], risk: 32.4, level: 'Low', color: '#1a9850', methane: '0.41%', co: '14.3 ppm', oxygen: '20.59%', workers: 18, reason: 'Repeated dust suppression observation' },
+  { id: 'W-01', name: 'Workshop W-01', position: [23.758, 85.870], risk: 27.7, level: 'Low', color: '#1a9850', methane: '0.31%', co: '9.5 ppm', oxygen: '20.71%', workers: 16, reason: 'Preventive maintenance in progress' },
+  { id: 'V-01', name: 'Ventilation V-01', position: [23.757, 85.875], risk: 41.2, level: 'Moderate', color: '#fdae61', methane: '0.52%', co: '16.7 ppm', oxygen: '20.48%', workers: 7, reason: 'Ventilation reading requires review' },
+  { id: 'C-01', name: 'Crusher C-01', position: [23.758, 85.870], risk: 4.9, level: 'Low', color: '#1a9850', methane: '0.31%', co: '7.2 ppm', oxygen: '20.75%', workers: 11, reason: 'Operational' },
+  { id: 'S-01', name: 'Storage S-01', position: [23.759, 85.867], risk: 7.0, level: 'Low', color: '#1a9850', methane: '0.31%', co: '7.8 ppm', oxygen: '20.75%', workers: 8, reason: 'Operational' },
+]
+
+function RiskPopup({ zone }) {
+  return <div className="risk-popup"><h3>{zone.name}</h3><span className="risk-pill" style={{ background: zone.color }}>{zone.level} · {zone.risk}/100</span><div>Methane: {zone.methane} &nbsp;|&nbsp; CO: {zone.co} &nbsp;|&nbsp; O2: {zone.oxygen}</div><div>Workers on site: {zone.workers}</div><hr /><b>Why:</b><p>• {zone.reason}</p><hr /><b>Safety status:</b><p className="safe-line">No emergency-rule condition detected.</p></div>
+}
+export default function MineRiskHeatmap() {
+  return <div className="heatmap-shell"><MapContainer center={[23.7542, 85.8687]} zoom={15} scrollWheelZoom className="risk-map" zoomControl><LayersControl position="topright"><LayersControl.BaseLayer checked name="Satellite"><TileLayer attribution="Tiles © Esri" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" maxZoom={19} /></LayersControl.BaseLayer><LayersControl.BaseLayer name="Streets"><TileLayer attribution="© OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} /></LayersControl.BaseLayer></LayersControl><ScaleControl position="bottomleft" metric imperial={false} />{zones.map(zone => <span key={zone.id}><Circle center={zone.position} radius={90 + zone.risk} pathOptions={{ color: zone.color, fillColor: zone.color, fillOpacity: zone.risk > 45 ? .2 : .1, weight: 0 }} /><CircleMarker center={zone.position} radius={6} pathOptions={{ color: '#fff', weight: 1.5, fillColor: zone.color, fillOpacity: .95 }}><Tooltip permanent direction="top" offset={[0, -8]} className="zone-label">{zone.name.toUpperCase()}</Tooltip><Popup><RiskPopup zone={zone} /></Popup></CircleMarker></span>)}<div className="leaflet-title-box"><strong>MineRisk Heatmap</strong><span>Live satellite view · explainable zone risk</span></div><div className="leaflet-legend-box"><strong>RISK ASSESSMENT HEATMAP</strong><span><i style={{ background: '#d73027' }} /> RED: High / Critical Risk</span><span><i style={{ background: '#fdae61' }} /> ORANGE: Moderate Risk</span><span><i style={{ background: '#1a9850' }} /> GREEN: Low Risk</span></div></MapContainer></div>
+}
