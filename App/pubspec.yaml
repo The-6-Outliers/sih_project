@@ -1,0 +1,42 @@
+name: coal_mine_inspector
+description: >-
+  Offline-first data and hardware engine for coal-mine statutory inspections.
+  Smart India Hackathon. Transactional Outbox pattern over SQLite (sqflite).
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # --- Persistence / Transactional Outbox ---
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # --- Identity ---
+  uuid: ^4.5.1
+
+  # --- Hardware ---
+  geolocator: ^13.0.1
+  image_picker: ^1.1.2
+
+  # --- Connectivity & transport ---
+  connectivity_plus: ^6.1.0
+  dio: ^5.7.0
+
+  # --- Utilities ---
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
