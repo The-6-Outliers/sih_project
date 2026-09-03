@@ -1,0 +1,11 @@
+zone_id,zone_name,zone_type,latitude,longitude
+A-01,Panel A-01,Production Panel,22.315,87.305
+A-02,Panel A-02,Production Panel,22.317,87.31
+B-11,Panel B-11,Production Panel,22.312,87.315
+B-12,Panel B-12,Production Panel,22.309,87.32
+H-01,Haul Road H-01,Haul Road,22.32,87.318
+H-02,Haul Road H-02,Haul Road,22.322,87.31
+W-01,Workshop W-01,Workshop,22.307,87.312
+V-01,Ventilation V-01,Ventilation Station,22.305,87.318
+C-01,Crusher C-01,Crusher Area,22.325,87.322
+S-01,Storage S-01,Storage Area,22.328,87.308
