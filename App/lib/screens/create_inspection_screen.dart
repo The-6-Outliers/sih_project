@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/database/database_helper.dart';
@@ -219,6 +220,16 @@ class _CreateInspectionScreenState extends State<CreateInspectionScreen> {
     final navigator = Navigator.of(context);
 
     setState(() => _submitting = true);
+
+    // On web preview, skip database save and show success
+    if (kIsWeb) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Web preview: observation recorded')),
+      );
+      navigator.pop(true);
+      return;
+    }
 
     final now = DateTime.now().toUtc();
     final fix = _fix!;

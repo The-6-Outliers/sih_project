@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 import '../core/database/database_helper.dart';
@@ -10,7 +11,9 @@ import '../models/inspection.dart';
 import 'create_inspection_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key, required this.inspectorId});
+
+  final String inspectorId;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -70,6 +73,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _reload() async {
+    if (kIsWeb) {
+      if (!mounted) return;
+      setState(() {
+        _inspections = const [];
+        _pendingCount = 0;
+        _loading = false;
+      });
+      return;
+    }
     final items = await _db.getInspections(limit: 200);
     final pending = await _db.countPendingSync();
     if (!mounted) return;
@@ -81,6 +93,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _onRefresh() async {
+    if (kIsWeb) {
+      await _reload();
+      return;
+    }
     if (!SyncService.isInitialised) {
       await _reload();
       return;
@@ -93,7 +109,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _openCreate() async {
     final created = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const CreateInspectionScreen()),
+      MaterialPageRoute(
+        builder: (_) => CreateInspectionScreen(inspectorId: widget.inspectorId),
+      ),
     );
     if (created == true) {
       await _reload();

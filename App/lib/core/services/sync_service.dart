@@ -5,6 +5,9 @@ import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../models/inspection.dart';
 import '../../models/inspection_media.dart';
@@ -380,6 +383,11 @@ class SyncService {
 
     final media = await _db.getMediaForInspection(item.entityId);
 
+    if (Firebase.apps.isNotEmpty) {
+      await _pushInspectionToFirebase(inspection, media);
+      return;
+    }
+
     final formMap = <String, dynamic>{
       'operation': item.operation.name,
       'client_id': inspection.id,
@@ -453,6 +461,68 @@ class SyncService {
     }
 
     _absorbSuccessBody(inspection, media, response.data);
+  }
+
+  Future<void> _pushInspectionToFirebase(
+    Inspection inspection,
+    List<InspectionMedia> media,
+  ) async {
+    final firestore = FirebaseFirestore.instance;
+    final storage = FirebaseStorage.instance;
+    final mediaUrls = <String>[];
+
+    for (final item in media) {
+      if (item.remoteUrl != null) {
+        mediaUrls.add(item.remoteUrl!);
+        continue;
+      }
+      final file = File(item.localPath);
+      if (!await file.exists()) continue;
+      final reference = storage.ref('inspection-evidence/${inspection.id}/${item.id}-${item.fileName}');
+      await reference.putFile(file);
+      final url = await reference.getDownloadURL();
+      mediaUrls.add(url);
+      await _db.markMediaUploaded(item.id, url);
+    }
+
+    await firestore.collection('inspections').doc(inspection.id).set({
+      'id': inspection.id,
+      'mineId': inspection.mineCode,
+      'mineCode': inspection.mineCode,
+      'inspectorId': inspection.inspectorId,
+      'date': Timestamp.fromDate(inspection.createdAt),
+      'category': _categoryFor(inspection.inspectionType),
+      'inspectionType': inspection.inspectionType,
+      'title': inspection.title,
+      'status': inspection.severity == InspectionSeverity.low ? 'pending' : 'violation',
+      'coordinates': GeoPoint(inspection.latitude, inspection.longitude),
+      'latitude': inspection.latitude,
+      'longitude': inspection.longitude,
+      'accuracy': inspection.accuracy,
+      'isMocked': inspection.isMocked,
+      'photoUrls': mediaUrls,
+      'notes': inspection.notes,
+      'severity': inspection.severity.name,
+      'automatedRiskScore': _riskFor(inspection.severity),
+      'source': 'mobile-inspector',
+      'createdAt': Timestamp.fromDate(inspection.createdAt),
+      'updatedAt': Timestamp.fromDate(inspection.updatedAt),
+    }, SetOptions(merge: true));
+  }
+
+  String _categoryFor(String type) {
+    if (type == 'dust_environment') return 'environment';
+    if (type == 'haulage') return 'labour';
+    return 'safety';
+  }
+
+  int _riskFor(InspectionSeverity severity) {
+    return switch (severity) {
+      InspectionSeverity.critical => 95,
+      InspectionSeverity.high => 80,
+      InspectionSeverity.medium => 55,
+      InspectionSeverity.low => 20,
+    };
   }
 
   void _absorbSuccessBody(
