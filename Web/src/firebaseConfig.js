@@ -4,12 +4,13 @@ import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/fires
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'sih-2026.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'sih-2026-demo',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'sih-2026-demo.appspot.com',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:000000000000:web:demo',
+  apiKey: 'AIzaSyDl5ZcplR1Q1QQWrx3F-T6IyyzwH5vKzIs',
+  authDomain: 'sih-2026-b6739.firebaseapp.com',
+  projectId: 'sih-2026-b6739',
+  storageBucket: 'sih-2026-b6739.firebasestorage.app',
+  messagingSenderId: '87907194843',
+  appId: '1:87907194843:web:1f6c9803c026b8c16f79fe',
+  measurementId: 'G-X4CKXYQ3EG',
 }
 
 const app = initializeApp(firebaseConfig)
